@@ -63,7 +63,7 @@ const syncWorkspaceCreation = inngest.createFunction(
     triggers: { event: "clerk/organization.created" },
   },
   async ({ event }) => {
-    const data = event;
+    const { data } = event;
     await prisma.workspace.create({
       data: {
         id: data.id,
@@ -91,7 +91,7 @@ const syncWorkspaceUpdation = inngest.createFunction(
     triggers: { event: "clerk/organization.updated" },
   },
   async ({ event }) => {
-    const data = event;
+    const { data } = event;
     await prisma.workspace.update({
       where: {
         id: data.id,
@@ -128,7 +128,7 @@ const syncWorkspaceMemberCreation = inngest.createFunction(
     triggers: { event: "clerk/organizationInvitaion.accepted" },
   },
   async ({ event }) => {
-    const data = event;
+    const { data } = event;
     await prisma.workspaceMember.create({
       data: {
         userId: data.user_id,
