@@ -1,5 +1,6 @@
 import { Inngest } from "inngest";
 import { prisma } from "../../src/db.js";
+import sendEmail from "../nodemailer/index.js";
 
 export const inngest = new Inngest({ id: "server" });
 
@@ -139,6 +140,53 @@ const syncWorkspaceMemberCreation = inngest.createFunction(
   },
 );
 
+// Inngest Function to send email on task creation
+const sendTaskAssignmentEmail = inngest.createFunction(
+  {
+    id: "send-task-assignment-email",
+    triggers: { event: "app/task.assignment" },
+  },
+  async ({ event, step }) => {
+    const { taskId, origin } = event.data;
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        assignee: true,
+        project: true,
+      },
+    });
+
+    await sendEmail({
+      to: task.assignee.email,
+      subject: `New Task Assignment in ${task.project.name}`,
+      body: `Hi ${task.assignee.name}``${task.title}``${new Date(task.due_date).toLocaleDateString()} <a href=${origin}>View Task</a>`,
+    });
+
+    if (
+      new Date(task.due_date).toLocaleDateString() !==
+      new Date().toLocaleDateString()
+    ) {
+      await step.sleepUntil("wait-for-the-due-date", new Date(task.due_date));
+      await step.run("check-if-task-is-completed", async () => {
+        const task = await prisma.task.findUnique({
+          where: { id: taskId },
+          include: { assignee: true, project: true },
+        });
+        if (!task) return;
+        if (task.status !== "DONE") {
+          await step.run("send-task-reminder-email", async () => {
+            await sendEmail({
+              to: task.assignee.email,
+              subject: `Reminder for ${task.project.name}`,
+              body: ``,
+            });
+          });
+        }
+      });
+    }
+  },
+);
+
 export const functions = [
   syncUserCreation,
   syncUserDeletion,
@@ -147,4 +195,5 @@ export const functions = [
   syncWorkspaceUpdation,
   syncWorkspaceDeletion,
   syncWorkspaceMemberCreation,
+  sendTaskAssignmentEmail,
 ];
