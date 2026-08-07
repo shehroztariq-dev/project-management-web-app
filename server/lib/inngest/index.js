@@ -1,5 +1,5 @@
 import { Inngest } from "inngest";
-import { prisma } from "../src/db.js";
+import { prisma } from "../../src/db.js";
 
 export const inngest = new Inngest({ id: "server" });
 

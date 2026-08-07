@@ -2,7 +2,7 @@ import express from "express";
 import {
   addMember,
   getUserWorkspaces,
-} from "../controllers/workspaceControllers.js";
+} from "../controllers/workspaceController.js";
 
 const router = express.Router();
 

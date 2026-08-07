@@ -3,7 +3,7 @@ import "dotenv/config";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import { serve } from "inngest/express";
-import { inngest, functions } from "../inngest/index.js";
+import { inngest, functions } from "../lib/inngest/index.js";
 
 import workspaceRoutes from "../routes/workspaceRoutes.js";
 import projectRoutes from "../routes/projectRoutes.js";
