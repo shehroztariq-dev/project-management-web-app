@@ -8,6 +8,7 @@ import { inngest, functions } from "../lib/inngest/index.js";
 import workspaceRoutes from "../routes/workspaceRoutes.js";
 import projectRoutes from "../routes/projectRoutes.js";
 import taskRoutes from "../routes/taskRoutes.js";
+import commentRoutes from "../routes/commentRoutes.js";
 
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -30,6 +31,7 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/workspaces", protect, workspaceRoutes);
 app.use("/api/projects", protect, projectRoutes);
 app.use("/api/tasks", protect, taskRoutes);
+app.use("/api/comments", protect, commentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
