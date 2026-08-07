@@ -17,23 +17,23 @@ export const createProject = async (req, res) => {
       end_date,
     } = req.body;
 
-    // check if user has admin role for workpace
-    const workpace = await prisma.workspace.findUnique({
+    // check if user has admin role for workspace
+    const workspace = await prisma.workspace.findUnique({
       where: {
-        workspaceId,
+        id: workspaceId,
       },
       include: {
         members: { include: { user: true } },
       },
     });
 
-    if (!workpace) {
+    if (!workspace) {
       return res.status(404).json({ message: "Workspace not found" });
     }
 
     if (
-      !workpace.members.some(
-        (member) => member.id === userId && member.role === "ADMIN",
+      !workspace.members.some(
+        (member) => member.userId === userId && member.role === "ADMIN",
       )
     ) {
       return res.status(403).json({
@@ -50,14 +50,17 @@ export const createProject = async (req, res) => {
       },
     });
 
+    if (!teamLead) {
+      return res.status(400).json({ message: "Team lead not found" });
+    }
+
     const project = await prisma.project.create({
       data: {
         workspaceId,
         name,
         description,
         status,
-        team_members,
-        team_lead: team_lead,
+        team_lead: teamLead.id,
         progress,
         priority,
         start_date: start_date ? new Date(start_date) : null,
@@ -68,7 +71,7 @@ export const createProject = async (req, res) => {
     // Add members to project if they are in workspace
     if (team_members?.length > 0) {
       const membersToAdd = [];
-      workpace.member.forEach((member) => {
+      workspace.members.forEach((member) => {
         if (team_members.includes(member.user.email)) {
           membersToAdd.push(member.user.id);
         }
@@ -120,8 +123,8 @@ export const updateProject = async (req, res) => {
       end_date,
     } = req.body;
 
-    // check if user has admin role for workpace
-    const workpace = await prisma.workspace.findUnique({
+    // check if user has admin role for workspace
+    const workspace = await prisma.workspace.findUnique({
       where: {
         workspaceId,
       },
@@ -130,17 +133,17 @@ export const updateProject = async (req, res) => {
       },
     });
 
-    if (!workpace) {
-      return res.status(404).json({ message: "workpace not found" });
+    if (!workspace) {
+      return res.status(404).json({ message: "workspace not found" });
     }
     if (
-      !workpace.members.some(
+      !workspace.members.some(
         (member) => member.userId === userId && member.role === "ADMIN",
       )
     ) {
       const project = await prisma.project.findUnique({ where: { id } });
       if (!project) {
-        return res.status(404).json({ message: "workpace not found" });
+        return res.status(404).json({ message: "workspace not found" });
       } else if (project.team_lead !== userId) {
         return res.status(403).json({
           message:
