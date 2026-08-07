@@ -144,7 +144,7 @@ const syncWorkspaceMemberCreation = inngest.createFunction(
 const sendTaskAssignmentEmail = inngest.createFunction(
   {
     id: "send-task-assignment-email",
-    triggers: { event: "app/task.assignment" },
+    triggers: { event: "app/task.assigned" },
   },
   async ({ event, step }) => {
     const { taskId, origin } = event.data;
