@@ -4,7 +4,7 @@ import { inngest } from "../lib/inngest/index.js";
 // create task
 export const createTask = async (req, res) => {
   try {
-    const { userId } = await req.Auth();
+    const { userId } = await req.auth();
     const {
       projectId,
       title,

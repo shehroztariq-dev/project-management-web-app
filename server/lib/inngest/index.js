@@ -159,7 +159,7 @@ const sendTaskAssignmentEmail = inngest.createFunction(
     await sendEmail({
       to: task.assignee.email,
       subject: `New Task Assignment in ${task.project.name}`,
-      body: `Hi ${task.assignee.name}``${task.title}``${new Date(task.due_date).toLocaleDateString()} <a href=${origin}>View Task</a>`,
+      body: `Hi ${task.assignee.name}, you've been assigned "${task.title}". Due: ${new Date(task.due_date).toLocaleDateString()}. <a href="${origin}">View Task</a>`,
     });
 
     if (
@@ -178,7 +178,7 @@ const sendTaskAssignmentEmail = inngest.createFunction(
             await sendEmail({
               to: task.assignee.email,
               subject: `Reminder for ${task.project.name}`,
-              body: ``,
+              body: `Reminder: "${task.title}" in ${task.project.name} is due ${new Date(task.due_date).toLocaleDateString()} and still isn't marked done. <a href="${origin}">View Task</a>`,
             });
           });
         }
