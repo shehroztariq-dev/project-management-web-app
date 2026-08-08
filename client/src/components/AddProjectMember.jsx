@@ -40,7 +40,6 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
       setIsDialogOpen(false);
       dispatch(fetchWorkspaces({ getToken }));
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message || error.message);
     } finally {
       setIsAdding(false);

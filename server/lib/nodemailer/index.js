@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = async ({ to, subject, body }) => {
   const res = await transporter.sendMail({
-    from: `"Macro Task" <team@macrotask.com>`, //
+    from: `"MacroTask" <${process.env.SMTP_USER}>`, //
     to: to,
     subject: subject,
     html: body,
