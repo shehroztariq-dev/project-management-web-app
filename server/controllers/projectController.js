@@ -126,7 +126,7 @@ export const updateProject = async (req, res) => {
     // check if user has admin role for workspace
     const workspace = await prisma.workspace.findUnique({
       where: {
-        workspaceId,
+        id: workspaceId,
       },
       include: {
         members: { include: { user: true } },
@@ -154,7 +154,7 @@ export const updateProject = async (req, res) => {
 
     const project = await prisma.project.update({
       where: { id },
-      date: {
+      data: {
         workspaceId,
         name,
         description,
@@ -189,7 +189,7 @@ export const addMember = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "project not found" });
     }
-    if (!project.team_lead !== id) {
+    if (project.team_lead !== userId) {
       return res
         .status(403)
         .json({ message: "only project lead can add members" });

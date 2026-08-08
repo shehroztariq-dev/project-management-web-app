@@ -34,10 +34,16 @@ export const getUserWorkspaces = async (req, res) => {
 // Add member to workspace
 export const addMember = async (req, res) => {
   try {
-    const { userId } = await req.auth();
+    const { userId } = req.auth();
     const { email, role, workspaceId, message } = req.body;
 
-    if (!email || !workspaceId || !role) {
+    // Check if user exists
+    const user = await prisma.workspace.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!workspaceId && !role) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
@@ -45,11 +51,7 @@ export const addMember = async (req, res) => {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    // fetch workspace
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
       include: { members: true },
@@ -58,17 +60,20 @@ export const addMember = async (req, res) => {
       return res.status(404).json({ message: "Workspace not found" });
     }
 
-    const isAdmin = workspace.members.some(
-      (member) => member.userId === userId && member.role === "ADMIN",
-    );
-    if (!isAdmin) {
+    // Check creator have admin role
+    if (
+      !workspace.members.find(
+        (member) => member.userId === userId && member.role === "ADMIN",
+      )
+    ) {
       return res
-        .status(403)
+        .status(401)
         .json({ message: "You don't have admin privileges" });
     }
 
+    // Check user if user is already a member
     const existingMember = workspace.members.find(
-      (member) => member.userId === user.id,
+      (member) => member.userId === userId,
     );
     if (existingMember) {
       return res.status(400).json({ message: "User is already a member" });
