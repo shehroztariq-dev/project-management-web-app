@@ -3,7 +3,7 @@ import { prisma } from "../src/db.js";
 // add comment
 export const addComment = async (req, res) => {
   try {
-    const { userId } = await req.Auth();
+    const { userId } = await req.auth();
     const { content, taskId } = req.body;
 
     // check if user is project member
@@ -22,7 +22,7 @@ export const addComment = async (req, res) => {
       return res.status(404).json({ message: "project not found" });
     }
 
-    const member = await prisma.project.find(
+    const member = await project.members.find(
       (member) => member.userId === userId,
     );
     if (!member) {
